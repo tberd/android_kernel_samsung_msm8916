@@ -1244,8 +1244,7 @@ unsigned long reclaim_clean_pages_from_list(struct zone *zone,
 }
 
 #ifdef CONFIG_PROCESS_RECLAIM
-unsigned long reclaim_pages_from_list(struct list_head *page_list,
-					struct vm_area_struct *vma)
+unsigned long reclaim_pages_from_list(struct list_head *page_list)
 {
 	struct scan_control sc = {
 		.gfp_mask = GFP_KERNEL,
