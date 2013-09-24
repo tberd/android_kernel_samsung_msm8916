@@ -341,41 +341,41 @@ struct sock {
 #ifdef CONFIG_XFRM
 	struct xfrm_policy	*sk_policy[2];
 #endif
-	unsigned long 		sk_flags;
-	struct dst_entry	*sk_rx_dst;
-	struct dst_entry __rcu	*sk_dst_cache;
-	spinlock_t		sk_dst_lock;
-	atomic_t		sk_wmem_alloc;
-	atomic_t		sk_omem_alloc;
-	int			sk_sndbuf;
-	struct sk_buff_head	sk_write_queue;
-	kmemcheck_bitfield_begin(flags);
-	unsigned int		sk_shutdown  : 2,
-				sk_no_check  : 2,
-				sk_userlocks : 4,
-				sk_protocol  : 8,
+    unsigned long         sk_flags;
+    struct dst_entry    *sk_rx_dst;
+    struct dst_entry __rcu    *sk_dst_cache;
+    spinlock_t        sk_dst_lock;
+    atomic_t        sk_wmem_alloc;
+    atomic_t        sk_omem_alloc;
+    int            sk_sndbuf;
+    struct sk_buff_head    sk_write_queue;
+    kmemcheck_bitfield_begin(flags);
+    unsigned int        sk_shutdown  : 2,
+                sk_no_check  : 2,
+                sk_userlocks : 4,
+                sk_protocol  : 8,
 #define SK_PROTOCOL_MAX U8_MAX
-				sk_type      : 16;
-	kmemcheck_bitfield_end(flags);
-	int			sk_wmem_queued;
-	gfp_t			sk_allocation;
-	u32			sk_pacing_rate; /* bytes per second */
-	u32			sk_max_pacing_rate;
-	netdev_features_t	sk_route_caps;
-	netdev_features_t	sk_route_nocaps;
-	int			sk_gso_type;
-	unsigned int		sk_gso_max_size;
-	u16			sk_gso_max_segs;
-	int			sk_rcvlowat;
-	unsigned long	        sk_lingertime;
-	struct sk_buff_head	sk_error_queue;
-	struct proto		*sk_prot_creator;
-	rwlock_t		sk_callback_lock;
-	int			sk_err,
-				sk_err_soft;
-	unsigned short		sk_ack_backlog;
-	unsigned short		sk_max_ack_backlog;
-	__u32			sk_priority;
+                sk_type      : 16;
+    kmemcheck_bitfield_end(flags);
+    int            sk_wmem_queued;
+    gfp_t            sk_allocation;
+    u32            sk_pacing_rate; /* bytes per second */
+    u32		   sk_max_pacing_rate;
+    netdev_features_t    sk_route_caps;
+    netdev_features_t    sk_route_nocaps;
+    int            sk_gso_type;
+    unsigned int        sk_gso_max_size;
+    u16            sk_gso_max_segs;
+    int            sk_rcvlowat;
+    unsigned long            sk_lingertime;
+    struct sk_buff_head    sk_error_queue;
+    struct proto        *sk_prot_creator;
+    rwlock_t        sk_callback_lock;
+    int            sk_err,
+                sk_err_soft;
+    unsigned short        sk_ack_backlog;
+    unsigned short        sk_max_ack_backlog;
+    __u32            sk_priority;
 #if IS_ENABLED(CONFIG_NETPRIO_CGROUP)
 	__u32			sk_cgrp_prioidx;
 #endif
