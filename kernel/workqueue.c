@@ -3523,7 +3523,7 @@ static struct worker_pool *get_unbound_pool(const struct workqueue_attrs *attrs)
 	hash_for_each_possible(unbound_pool_hash, pool, hash_node, hash) {
 		if (wqattrs_equal(pool->attrs, attrs)) {
 			pool->refcnt++;
-			goto out_unlock;
+			return pool;
 		}
 	}
 
@@ -3561,7 +3561,7 @@ static struct worker_pool *get_unbound_pool(const struct workqueue_attrs *attrs)
 
 	/* install */
 	hash_add(unbound_pool_hash, &pool->hash_node, hash);
-out_unlock:
+
 	return pool;
 fail:
 	if (pool)
