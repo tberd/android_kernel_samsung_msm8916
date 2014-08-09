@@ -416,6 +416,11 @@
 #define __NR_memfd_create		(__NR_SYSCALL_BASE+385)
 
 /*
+ * This may need to be greater than __NR_last_syscall+1 in order to
+ * account for the padding in the syscall table
+ */
+
+/*
  * The following SWIs are ARM private.
  */
 #define __ARM_NR_BASE			(__NR_SYSCALL_BASE+0x0f0000)
