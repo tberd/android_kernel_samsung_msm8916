@@ -193,22 +193,23 @@ struct sock_common {
 #ifdef CONFIG_NET_NS
 	struct net	 	*skc_net;
 #endif
-	/*
-	 * fields between dontcopy_begin/dontcopy_end
-	 * are not copied in sock_copy()
-	 */
-	/* private: */
-	int			skc_dontcopy_begin[0];
-	/* public: */
-	union {
-		struct hlist_node	skc_node;
-		struct hlist_nulls_node skc_nulls_node;
-	};
-	int			skc_tx_queue_mapping;
-	atomic_t		skc_refcnt;
-	/* private: */
-	int                     skc_dontcopy_end[0];
-	/* public: */
+    atomic64_t          skc_cookie;
+    /*
+     * fields between dontcopy_begin/dontcopy_end
+     * are not copied in sock_copy()
+     */
+    /* private: */
+    int            skc_dontcopy_begin[0];
+    /* public: */
+    union {
+        struct hlist_node    skc_node;
+        struct hlist_nulls_node skc_nulls_node;
+    };
+    int            skc_tx_queue_mapping;
+    atomic_t        skc_refcnt;
+    /* private: */
+    int                     skc_dontcopy_end[0];
+    /* public: */
 };
 
 struct cg_proto;
@@ -298,33 +299,34 @@ struct sock {
 #define sk_refcnt		__sk_common.skc_refcnt
 #define sk_tx_queue_mapping	__sk_common.skc_tx_queue_mapping
 
-#define sk_dontcopy_begin	__sk_common.skc_dontcopy_begin
-#define sk_dontcopy_end		__sk_common.skc_dontcopy_end
-#define sk_hash			__sk_common.skc_hash
-#define sk_family		__sk_common.skc_family
-#define sk_state		__sk_common.skc_state
-#define sk_reuse		__sk_common.skc_reuse
-#define sk_reuseport		__sk_common.skc_reuseport
-#define sk_bound_dev_if		__sk_common.skc_bound_dev_if
-#define sk_bind_node		__sk_common.skc_bind_node
-#define sk_prot			__sk_common.skc_prot
-#define sk_net			__sk_common.skc_net
-	socket_lock_t		sk_lock;
-	struct sk_buff_head	sk_receive_queue;
-	/*
-	 * The backlog queue is special, it is always used with
-	 * the per-socket spinlock held and requires low latency
-	 * access. Therefore we special case it's implementation.
-	 * Note : rmem_alloc is in this structure to fill a hole
-	 * on 64bit arches, not because its logically part of
-	 * backlog.
-	 */
-	struct {
-		atomic_t	rmem_alloc;
-		int		len;
-		struct sk_buff	*head;
-		struct sk_buff	*tail;
-	} sk_backlog;
+#define sk_dontcopy_begin    __sk_common.skc_dontcopy_begin
+#define sk_dontcopy_end        __sk_common.skc_dontcopy_end
+#define sk_hash            __sk_common.skc_hash
+#define sk_family        __sk_common.skc_family
+#define sk_state        __sk_common.skc_state
+#define sk_reuse        __sk_common.skc_reuse
+#define sk_reuseport        __sk_common.skc_reuseport
+#define sk_bound_dev_if        __sk_common.skc_bound_dev_if
+#define sk_bind_node        __sk_common.skc_bind_node
+#define sk_prot            __sk_common.skc_prot
+#define sk_net            __sk_common.skc_net
+#define sk_cookie        __sk_common.skc_cookie
+    socket_lock_t        sk_lock;
+    struct sk_buff_head    sk_receive_queue;
+    /*
+     * The backlog queue is special, it is always used with
+     * the per-socket spinlock held and requires low latency
+     * access. Therefore we special case it's implementation.
+     * Note : rmem_alloc is in this structure to fill a hole
+     * on 64bit arches, not because its logically part of
+     * backlog.
+     */
+    struct {
+        atomic_t    rmem_alloc;
+        int        len;
+        struct sk_buff    *head;
+        struct sk_buff    *tail;
+    } sk_backlog;
 #define sk_rmem_alloc sk_backlog.rmem_alloc
 	int			sk_forward_alloc;
 #ifdef CONFIG_RPS
