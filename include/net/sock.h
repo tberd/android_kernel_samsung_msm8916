@@ -377,26 +377,27 @@ struct sock {
     unsigned short        sk_ack_backlog;
     unsigned short        sk_max_ack_backlog;
     __u32            sk_priority;
-#if IS_ENABLED(CONFIG_NETPRIO_CGROUP)
-	__u32			sk_cgrp_prioidx;
-#endif
-	struct pid		*sk_peer_pid;
-	const struct cred	*sk_peer_cred;
-	long			sk_rcvtimeo;
-	long			sk_sndtimeo;
-	void			*sk_protinfo;
-	struct timer_list	sk_timer;
-	ktime_t			sk_stamp;
-	struct socket		*sk_socket;
-	void			*sk_user_data;
-	struct page_frag	sk_frag;
-	struct sk_buff		*sk_send_head;
-	__s32			sk_peek_off;
-	int			sk_write_pending;
+    __u32            sk_mark;
+    struct pid        *sk_peer_pid;
+    const struct cred    *sk_peer_cred;
+    long            sk_rcvtimeo;
+    long            sk_sndtimeo;
+    void            *sk_protinfo;
+    struct timer_list    sk_timer;
+    ktime_t            sk_stamp;
+    struct socket        *sk_socket;
+    void            *sk_user_data;
+    struct page_frag    sk_frag;
+    struct sk_buff        *sk_send_head;
+    __s32            sk_peek_off;
+    int            sk_write_pending;
 #ifdef CONFIG_SECURITY
 	void			*sk_security;
 #endif
     __u32            sk_mark;
+#if IS_ENABLED(CONFIG_CGROUP_NET_PRIO)
+       u16                     sk_cgrp_prioidx;
+#endif
     u32            sk_classid;
     struct cg_proto        *sk_cgrp;
     void            (*sk_state_change)(struct sock *sk);
