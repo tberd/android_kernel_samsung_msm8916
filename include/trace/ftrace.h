@@ -651,7 +651,8 @@ perf_trace_##call(void *__data, proto)					\
 	struct ftrace_data_offsets_##call __maybe_unused __data_offsets;\
 	struct ftrace_raw_##call *entry;				\
 	struct pt_regs __regs;						\
-	u64 __count = 1;					\
+	struct bpf_prog *prog = event_call->prog;			\
+	u64 __addr = 0, __count = 1;					\
 	struct task_struct *__task = NULL;				\
 	struct hlist_head *head;					\
 	int __entry_size;						\
@@ -661,6 +662,8 @@ perf_trace_##call(void *__data, proto)					\
 	perf_fetch_caller_regs(&__regs);				\
 									\
 	__data_size = ftrace_get_offsets_##call(&__data_offsets, args); \
+									\
+	head = this_cpu_ptr(event_call->perf_events);			\
 	__entry_size = ALIGN(__data_size + sizeof(*entry) + sizeof(u32),\
 			     sizeof(u64));				\
 	__entry_size -= sizeof(u32);					\
@@ -673,9 +676,13 @@ perf_trace_##call(void *__data, proto)					\
 									\
 	{ assign; }							\
 									\
-	perf_trace_buf_submit(entry, __entry_size, rctx,		\
-			      event_call->event.type, __count, __regs,	\
-			      head, __task);				\
+	if (prog) {							\
+		*(struct pt_regs **)entry = __regs;			\
+		if (!trace_call_bpf(prog, entry) || hlist_empty(head)) { \
+			perf_swevent_put_recursion_context(rctx);	\
+			return;						\
+		}							\
+	}                                                               \
 }
 
 /*
