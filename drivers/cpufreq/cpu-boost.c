@@ -396,7 +396,7 @@ static void cpuboost_input_event(struct input_handle *handle,
 	if (work_pending(&input_boost_work))
 		return;
 
-	queue_work(cpu_boost_wq, &input_boost_work);
+	kthread_queue_work(cpu_boost_wq, &input_boost_work);
 	last_input_time = ktime_to_us(ktime_get());
 }
 
@@ -480,7 +480,7 @@ static int cpu_boost_init(void)
 	if (!cpu_boost_wq)
 		return -EFAULT;
 
-	INIT_WORK(&input_boost_work, do_input_boost);
+	kthread_init_work(&input_boost_work, do_input_boost);
 	INIT_DELAYED_WORK(&input_boost_rem, do_input_boost_rem);
 
 	for_each_possible_cpu(cpu) {
