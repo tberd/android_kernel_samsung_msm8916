@@ -230,6 +230,39 @@ static void create_kthread(struct kthread_create_info *create)
 	}
 }
 
+static struct task_struct *__kthread_create_on_node(int (*threadfn)(void *data),
+						    void *data, int node,
+						    const char namefmt[],
+						    va_list args)
+{
+	struct kthread_create_info create;
+
+	create.threadfn = threadfn;
+	create.data = data;
+	create.node = node;
+	init_completion(&create.done);
+
+	spin_lock(&kthread_create_lock);
+	list_add_tail(&create.list, &kthread_create_list);
+	spin_unlock(&kthread_create_lock);
+
+	wake_up_process(kthreadd_task);
+	wait_for_completion(&create.done);
+
+	if (!IS_ERR(create.result)) {
+		static const struct sched_param param = { .sched_priority = 0 };
+
+		vsnprintf(task->comm, sizeof(task->comm), namefmt, args);
+		/*
+		 * root may have changed our (kthreadd's) priority or CPU mask.
+		 * The kernel thread should not inherit these properties.
+		 */
+		sched_setscheduler_nocheck(create.result, SCHED_NORMAL, &param);
+		set_cpus_allowed_ptr(create.result, cpu_all_mask);
+	}
+	return create.result;
+}
+
 /**
  * kthread_create_on_node - create a kthread.
  * @threadfn: the function to run until signal_pending(current).
@@ -251,43 +284,21 @@ static void create_kthread(struct kthread_create_info *create)
  * kthread_stop() has been called).  The return value should be zero
  * or a negative error number; it will be passed to kthread_stop().
  *
- * Returns a task_struct or ERR_PTR(-ENOMEM).
+ * Returns a task_struct or ERR_PTR(-ENOMEM) or ERR_PTR(-EINTR).
  */
 struct task_struct *kthread_create_on_node(int (*threadfn)(void *data),
 					   void *data, int node,
 					   const char namefmt[],
 					   ...)
 {
-	struct kthread_create_info create;
+	struct task_struct *task;
+	va_list args;
 
-	create.threadfn = threadfn;
-	create.data = data;
-	create.node = node;
-	init_completion(&create.done);
+	va_start(args, namefmt);
+	task = __kthread_create_on_node(threadfn, data, node, namefmt, args);
+	va_end(args);
 
-	spin_lock(&kthread_create_lock);
-	list_add_tail(&create.list, &kthread_create_list);
-	spin_unlock(&kthread_create_lock);
-
-	wake_up_process(kthreadd_task);
-	wait_for_completion(&create.done);
-
-	if (!IS_ERR(create.result)) {
-		static const struct sched_param param = { .sched_priority = 0 };
-		va_list args;
-
-		va_start(args, namefmt);
-		vsnprintf(create.result->comm, sizeof(create.result->comm),
-			  namefmt, args);
-		va_end(args);
-		/*
-		 * root may have changed our (kthreadd's) priority or CPU mask.
-		 * The kernel thread should not inherit these properties.
-		 */
-		sched_setscheduler_nocheck(create.result, SCHED_NORMAL, &param);
-		set_cpus_allowed_ptr(create.result, cpu_all_mask);
-	}
-	return create.result;
+	return task;
 }
 EXPORT_SYMBOL(kthread_create_on_node);
 
