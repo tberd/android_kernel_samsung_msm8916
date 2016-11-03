@@ -395,6 +395,7 @@ struct sock {
 #ifdef CONFIG_SECURITY
 	void			*sk_security;
 #endif
+<<<<<<< HEAD
 	__u32			sk_mark;
 	kuid_t			sk_uid;
 	u32			sk_classid;
@@ -406,6 +407,19 @@ struct sock {
 	int			(*sk_backlog_rcv)(struct sock *sk,
 						  struct sk_buff *skb);
 	void                    (*sk_destruct)(struct sock *sk);
+=======
+    __u32            sk_mark;
+    u32            sk_classid;
+    struct cg_proto        *sk_cgrp;
+    void            (*sk_state_change)(struct sock *sk);
+    void            (*sk_data_ready)(struct sock *sk, int bytes);
+    void            (*sk_write_space)(struct sock *sk);
+    void            (*sk_error_report)(struct sock *sk);
+    int            (*sk_backlog_rcv)(struct sock *sk,
+                          struct sk_buff *skb);
+    void                    (*sk_destruct)(struct sock *sk);
+    kuid_t	    sk_uid;
+>>>>>>> e28582e279b (net: core: Add a UID field to struct sock.)
 };
 
 /*
@@ -1698,6 +1712,7 @@ static inline void sock_orphan(struct sock *sk)
 
 static inline void sock_graft(struct sock *sk, struct socket *parent)
 {
+<<<<<<< HEAD
 	write_lock_bh(&sk->sk_callback_lock);
 	sk->sk_wq = parent->wq;
 	parent->sk = sk;
@@ -1705,6 +1720,15 @@ static inline void sock_graft(struct sock *sk, struct socket *parent)
 	sk->sk_uid = SOCK_INODE(parent)->i_uid;
 	security_sock_graft(sk, parent);
 	write_unlock_bh(&sk->sk_callback_lock);
+=======
+    write_lock_bh(&sk->sk_callback_lock);
+    sk->sk_wq = parent->wq;
+    parent->sk = sk;
+    sk_set_socket(sk, parent);
+    security_sock_graft(sk, parent);
+    write_unlock_bh(&sk->sk_callback_lock);
+    sk->sk_uid = SOCK_INODE(parent)->i_uid;
+>>>>>>> e28582e279b (net: core: Add a UID field to struct sock.)
 }
 
 extern kuid_t sock_i_uid(struct sock *sk);
