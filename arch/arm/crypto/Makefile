@@ -21,3 +21,6 @@ $(src)/aesbs-core.S_shipped: $(src)/bsaes-armv7.pl
 	$(call cmd,perl)
 
 .PRECIOUS: $(obj)/aesbs-core.S
+obj-$(CONFIG_CRYPTO_CHACHA20_NEON) += chacha20-neon.o
+
+chacha20-neon-y := chacha20-neon-core.o chacha20-neon-glue.o
