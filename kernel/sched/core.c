@@ -880,6 +880,7 @@ static void enqueue_task(struct rq *rq, struct task_struct *p, int flags)
 {
 	update_rq_clock(rq);
 	sched_info_queued(p);
+	psi_enqueue(p, flags & ENQUEUE_WAKEUP);
 	p->sched_class->enqueue_task(rq, p, flags);
 	trace_sched_enq_deq_task(p, 1, cpumask_bits(&p->cpus_allowed)[0]);
 	inc_cumulative_runnable_avg(rq, p);
@@ -889,6 +890,7 @@ static void dequeue_task(struct rq *rq, struct task_struct *p, int flags)
 {
 	update_rq_clock(rq);
 	sched_info_dequeued(p);
+	psi_dequeue(p, flags & DEQUEUE_SLEEP);
 	p->sched_class->dequeue_task(rq, p, flags);
 	trace_sched_enq_deq_task(p, 0, cpumask_bits(&p->cpus_allowed)[0]);
 	dec_cumulative_runnable_avg(rq, p);
@@ -3251,6 +3253,7 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags)
 	src_cpu = task_cpu(p);
 	if (src_cpu != cpu) {
 		wake_flags |= WF_MIGRATED;
+		psi_ttwu_dequeue(p);
 		set_task_cpu(p, cpu);
 	}
 #endif /* CONFIG_SMP */
@@ -4619,6 +4622,7 @@ void scheduler_tick(void)
 	update_cpu_load_active(rq);
 	curr->sched_class->task_tick(rq, curr, 0);
 	update_task_ravg(rq->curr, rq, TASK_UPDATE, sched_clock(), 0);
+	psi_task_tick(rq);
 	raw_spin_unlock(&rq->lock);
 
 	perf_event_task_tick();
@@ -9307,6 +9311,8 @@ void __init sched_init(void)
 	idle_thread_set_boot_cpu();
 #endif
 	init_sched_fair_class();
+
+	psi_init();
 
 	scheduler_running = 1;
 }
