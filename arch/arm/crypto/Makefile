@@ -22,5 +22,6 @@ $(src)/aesbs-core.S_shipped: $(src)/bsaes-armv7.pl
 
 .PRECIOUS: $(obj)/aesbs-core.S
 obj-$(CONFIG_CRYPTO_CHACHA20_NEON) += chacha-neon.o
+obj-$(CONFIG_CRYPTO_NHPOLY1305_NEON) += nhpoly1305-neon.o
 
-chacha-neon-y := chacha-neon-core.o chacha-neon-glue.o
+nhpoly1305-neon-y := nh-neon-core.o nhpoly1305-neon-glue.o
