@@ -189,7 +189,7 @@ static inline u32 get_arch_timeoffset(void) { return 0; }
 static inline s64 timekeeping_get_ns(struct tk_read_base *tkr)
 {
 	cycle_t cycle_now, delta;
-	u64 nsec;
+	s64 nsec;
 
 	/* read clocksource: */
 	cycle_now = tkr->read(tkr->clock);
