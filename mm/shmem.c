@@ -1975,6 +1975,7 @@ restart:
 		if (need_resched()) {
 			rcu_read_unlock();
 			rcu_read_lock();
+			cond_resched_rcu();
 			start = iter.index + 1;
 			goto restart;
 		}
@@ -2046,6 +2047,7 @@ continue_resched:
 			if (need_resched()) {
 				rcu_read_unlock();
 				rcu_read_lock();
+				cond_resched_rcu();
 				start = iter.index + 1;
 				goto restart;
 			}
